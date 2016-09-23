@@ -1,0 +1,283 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../t-image/t-image.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../t-policy/t-policy.html">
+<link rel="import" href="../t-overlay/t-overlay.html">
+<link rel="import" href="../juicy-html/juicy-html.html">
+<link rel="import" href="../t-hotel-room-list/t-hotel-room-policy-provider.html">
+<link rel="import" href="../t-hotel-room-list/t-hotel-room-policy-list.html">
+<link rel="import" href="../t-badge/t-badge.html">
+<link rel="import" href="../t-button/t-button.html">
+
+<!--
+    <h3>Details:</h3>
+
+        `t-hotel-itinerary-details` is a view component used to display selected activity details.
+        `t-hotel-itinerary-details-page` component integrates this component with api components
+
+    <h3>Events:</h3>
+
+        following events are fired by this component
+
+            1. 'policy-click' - fired when policy link is clicked, itinerary id is provided with event.
+
+    <h3>Example:</h3>
+
+        <t-hotel-itinerary-details 
+            activity-icon="[[activityIcon]]" 
+            id="itineraryView">
+        </t-hotel-itinerary-details>
+
+    @demo demo/index.html
+-->
+
+<dom-module id="t-hotel-itinerary-details">
+
+    <style include="travel-element-styles">
+        .image-container{
+          position: relative;
+        }
+
+        .hotel-details{
+          position:absolute;
+          left:0;
+          bottom: 0;
+          color: #fff;
+          width:100%;
+          padding: 5px 10px;
+          box-sizing: border-box;
+          -webkit-box-sizing: border-box;
+          background: rgba(0,0,0,0.25);
+        }
+        .icon-star{
+          width:15px;
+          height:15px;
+        }
+
+        .clock-container{    
+          width: 80px;
+          margin-top: -2px;
+          position: relative;
+        }
+        .margin-horizontal {
+          margin: 0 10px;
+        }
+        .margin-bottom-regular {
+          margin-bottom: 10px;
+        }
+    </style>
+
+    <template>
+        <div class="image-container">
+            <t-image 
+                loading-icon="[[hotelIcon]]" 
+                style="display: block" 
+                src="[[itinerary.heroImageUrl]]"
+                height="200">
+            </t-image>
+
+            <div class="hotel-details">
+                <div class="font-16 margin-bottom">
+                    [[itinerary.name]]
+                </div>
+                <div class="font-12 margin-bottom ellipsis-2">
+                    <span>[[itinerary.address]]</span>
+                </div>
+                <div class="layout horizontal">
+                    <template is="dom-repeat" items="[[ratingList]]">
+                        <iron-icon class="icon-star" icon="star"></iron-icon>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- @*Itinerary section*@ -->
+        <div class="layout horizontal center section-small primary-light-text font-16">
+            <div class="text-right flex">
+                <div class="font-12 secondary-text margin-bottom">
+                    CHECK-IN
+                </div>
+                <div>{{_getDisplayDay(itinerary.stayDuration.start.date)}}, <b>{{_getDisplayDate(itinerary.stayDuration.start.date)}}</b></div>
+            </div>
+            <div class="layout vertical center font-12 secondary-text clock-container">
+                <span>
+                    <iron-icon icon="schedule"></iron-icon>
+                </span>
+                <span class="flex"></span>
+                <span class="self-center">{{
+                _getDisplayNightsCount(itinerary.stayDuration.start.date, itinerary.stayDuration.end.date)}}</span>
+            </div>
+            <div class="text-left flex">
+                <div class="font-12 secondary-text margin-bottom">
+                    CHECK-OUT
+                </div>
+                <div><b>{{_getDisplayDate(itinerary.stayDuration.end.date)}}</b>, {{_getDisplayDay(itinerary.stayDuration.end.date)}}</div>
+            </div>
+        </div>
+        <!-- @*Itinerary section ends*@ -->
+
+        <div class="border-bottom margin-horizontal"></div>
+
+        <!-- @*Deal section starts*@ -->
+        <div class="primary-light-text font-16">
+            <div class="section-small">
+                <div class="margin-bottom capitalize">{{_toLowerCase(selectedRoom.name)}}</div>
+                <div class="font-12 secondary-text margin-bottom-medium capitalize">
+                    <template is="juicy-html" content$="[[_toLowerCase(selectedRoom.description)]]"></template>
+                </div>
+                <template is="dom-if" if="[[selectedRoom.inclusions]]">
+                    <div class="font-12 primary-text margin-bottom">[[_getRoomInclusion(selectedRoom.inclusions)]]</div>
+                </template>
+                <div class="link-style font-12" on-tap="_showPolicies">policy</div>
+            </div>
+            <div class="border-bottom margin-horizontal margin-bottom-regular"></div>
+            <t-overlay icon="bgv:arrow-left" header="Policies" id="overlay">
+                <t-hotel-room-policy-list
+                    id="policyList">
+                    <t-hotel-room-policy-provider
+                        id="policyProvider"
+                        api-base-url="[[apiBaseUrl]]"
+                        api-relative-url="api/hotel/results/single/policies"
+                        auth-token="[[authToken]]"
+                        search-id="[[searchId]]"
+                        itinerary-id="[[itinerary.id]]">
+                    </t-hotel-room-policy-provider>
+                </t-hotel-room-policy-list>
+            </t-overlay>
+            <template is="dom-if" if="[[selectedRoom.deals.length]]">
+                <t-badge label="Deal"></t-badge>
+                <div class="section-small font-12 secondary-text">
+                    <template is="dom-if" if="[[selectedRoom.deals.0.description]]">
+                        [[selectedRoom.deals.0.description]]
+                    </template>
+                    <template is="dom-if" if="[[!selectedRoom.deals.0.description]]">
+                        [[selectedRoom.deals.0.name]]
+                    </template>
+                </div>
+            </template>
+        </div>
+        <!-- @*Deal section ends*@ -->
+
+        <div class="horizontal layout section-small">
+            <t-button 
+                id="bookBtn" 
+                class="primary flex" 
+                disabled 
+                noink 
+                label="Continue Booking" 
+                on-tap="onBook">                    
+            </t-button>
+        </div>  
+    </template>
+
+    <script>
+        (function () {
+            'use strict'
+
+            Polymer({
+
+                is: 't-hotel-itinerary-details',
+
+                properties: {
+
+                    /*
+                     * This property holds the value of selected itinerary
+                     */
+                    itinerary: {
+                        type: Object
+                    },
+
+                    /*
+                     * <p>This property holds the value of selected room</p>
+                     */
+                    selectedRoom: {
+                        type: Object,
+                        notify: true
+                    },
+
+                    /*
+                     * <p>This holds value of hotel rating array</p>
+                     */
+                    ratingList: {
+                        type: Array
+                    },
+
+                    /*
+                     * This holds the value of default hotel icon
+                     */
+                    hotelIcon: {
+                        type: String,
+                        value: 'maps:hotel'
+                    }
+                },
+
+                _populateRatings: function () {
+                    this.ratingList = [];
+                    var lst =[];
+                    for (var i = 1; i <= this.itinerary.rating; i++) {
+                        lst.push(i);
+                    }
+
+                    this.ratingList = lst;
+                },
+
+                _getDisplayDay: function (dateVal) {
+                    if (!dateVal)
+                        return dateVal;
+
+                    if (typeof dateVal == 'string')
+                        dateVal = new Date(dateVal);
+                    var dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                    return dayNames[dateVal.getDay()];
+                },
+
+                _getDisplayDate: function (dateVal) {
+                    if (!dateVal)
+                        return dateVal;
+
+                    if (typeof dateVal == 'string')
+                        dateVal = new Date(dateVal);
+
+                    var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                    ];
+                    var date = dateVal.getDate() < 10 ? '0' + dateVal.getDate() : dateVal.getDate();
+                    var month = monthNames[dateVal.getMonth()];
+                    return (date + " " + month).trim();
+                }
+
+                /*This function is used to get total stay period string*/
+                
+                _getDisplayNightsCount: function (fromDate, toDate) {
+                    if (typeof fromDate == 'string')
+                        fromDate = new Date(fromDate);
+                    if (typeof toDate == 'string')
+                        toDate = new Date(toDate);
+                    var nights = _dateDiff(fromDate, toDate);
+                    if (nights > 1) {
+                        return nights + " nights";
+                    } else {
+                        return nights + " night";
+                    }
+                }
+
+                _toLowerCase: function (text) {
+                    text = text || '';
+                    return text.toLowerCase();
+                },
+
+                _getRoomInclusion: function (arr) {
+                    if (arr && arr.length) {
+                        return arr.join(", ");                        
+                    }
+                },
+
+                _showPolicies: function () {
+                    this.$.overlay.active = true;
+                    this.$.policyList.showPolicies();
+                }
+            });
+        })();
+    </script>
+</dom-module>
+  

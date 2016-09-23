@@ -1,0 +1,19 @@
+{
+  "name": "t-hotel-itinerary-details",
+  "description": "Displays details of selected hotel itinerary",
+  "main": "t-hotel-itinerary-details.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "juicy-html": "Juicy/juicy-html#^1.0.2",
+    "juicy-html": "atomelements/t-overlay#^1.0.0",
+    "t-hotel-room-list": "travelnxtelements/t-hotel-room-list#^1.0.4",
+    "t-badge": "travelnxtElements/t-badge#^1.0.0",
+    "t-button": "atomelements/t-button#^1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}
