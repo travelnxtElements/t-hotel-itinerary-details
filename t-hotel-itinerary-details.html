@@ -8,6 +8,7 @@
 <link rel="import" href="../t-hotel-room-list/t-hotel-room-policy-list.html">
 <link rel="import" href="../t-badge/t-badge.html">
 <link rel="import" href="../t-button/t-button.html">
+<link rel="import" href="../t-text-container/travel-element-styles.html">
 
 <!--
     <h3>Details:</h3>
@@ -34,6 +35,12 @@
 <dom-module id="t-hotel-itinerary-details">
 
     <style include="travel-element-styles">
+        :host {
+            display: block;
+            font-family: var(--header-font-family, --primary-font-family);
+            font-size: var(--font-14, 14px);
+        }
+            
         .image-container{
           position: relative;
         }
@@ -91,7 +98,7 @@
             </div>
         </div>
 
-        <!-- @*Itinerary section*@ -->
+        <!-- Itinerary section -->
         <div class="layout horizontal center section-small primary-light-text font-16">
             <div class="text-right flex">
                 <div class="font-12 secondary-text margin-bottom">
@@ -114,11 +121,11 @@
                 <div><b>{{_getDisplayDate(itinerary.stayDuration.end.date)}}</b>, {{_getDisplayDay(itinerary.stayDuration.end.date)}}</div>
             </div>
         </div>
-        <!-- @*Itinerary section ends*@ -->
+        <!-- Itinerary section ends -->
 
         <div class="border-bottom margin-horizontal"></div>
 
-        <!-- @*Deal section starts*@ -->
+        <!-- Deal section starts -->
         <div class="primary-light-text font-16">
             <div class="section-small">
                 <div class="margin-bottom capitalize">{{_toLowerCase(selectedRoom.name)}}</div>
@@ -156,7 +163,7 @@
                 </div>
             </template>
         </div>
-        <!-- @*Deal section ends*@ -->
+        <!-- Deal section ends -->
 
         <div class="horizontal layout section-small">
             <t-button 
